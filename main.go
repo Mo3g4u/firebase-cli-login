@@ -13,9 +13,9 @@ import (
 // メールアドレスとパスワードによるログイン
 // https://cloud.google.com/identity-platform/docs/use-rest-api#section-sign-in-email-password
 
-func curl(apiKey, email, pw string) []byte {
+func curl(apiKey, tenantId, email, pw string) []byte {
 	client := &http.Client{}
-	jsonStr := fmt.Sprintf("{\"email\":\"%s\",\"password\":\"%s\",\"returnSecureToken\":true}", email, pw)
+	jsonStr := fmt.Sprintf("{\"email\":\"%s\",\"password\":\"%s\",\"returnSecureToken\":true,\"tenantId\":\"%s\"}", email, pw, tenantId)
 	url := fmt.Sprintf("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=%s", apiKey)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonStr)))
 	if err != nil {
@@ -37,11 +37,15 @@ func curl(apiKey, email, pw string) []byte {
 
 func main() {
 	apiKey := os.Args[1]
-	email := os.Args[2]
-	pw := os.Args[3]
-	res := curl(apiKey, email, pw)
+	tenantId := os.Args[2]
+	email := os.Args[3]
+	pw := os.Args[4]
+	res := curl(apiKey, tenantId, email, pw)
+
+	fmt.Println(string(res))
 
 	var response Response
+
 	json.Unmarshal(res, &response)
 
 	fmt.Println(response.IdToken)
